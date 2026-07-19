@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en" data-tint="sand" data-density="comfortable">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Your Pocket Health Record — Care Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Manrope:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --sand:#FAF8F5; --sand-deep:#F1ECE4;
+    --sage:#8EAA90; --sage-deep:#6E8C71; --sage-mist:#E4EBE2;
+    --slate:#2C332D; --slate-soft:#5B6459;
+    --warmth:#E7C3AC;
+    --bg-tint:var(--sand);
+    --content-w:42rem; --stack-gap:1.75rem; --leading:1.7;
+  }
+  html[data-tint="sand"]{ --bg-tint:#FAF8F5; }
+  html[data-tint="sage"]{ --bg-tint:#F1F5F0; }
+  html[data-tint="warm"]{ --bg-tint:#FAF3EC; }
+  html[data-tint="dusk"]{ --bg-tint:#F4F1F0; }
+  html[data-density="compact"]{ --content-w:38rem; --stack-gap:1.1rem; --leading:1.5; }
+  html[data-density="comfortable"]{ --content-w:42rem; --stack-gap:1.75rem; --leading:1.7; }
+  html[data-density="spacious"]{ --content-w:46rem; --stack-gap:2.5rem; --leading:1.9; }
+
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:var(--bg-tint); color:var(--slate); font-family:'Manrope',sans-serif; line-height:var(--leading); transition:background-color .5s ease; }
+  h1,h2,h3,.display{ font-family:'Fraunces',serif; }
+  .mono{ font-family:'IBM Plex Mono',monospace; }
+  a{ color:inherit; }
+  .wrap{ max-width:72rem; margin:0 auto; padding:0 1.5rem; }
+  .stack > * + *{ margin-top:var(--stack-gap); }
+
+  .site-nav{ display:flex; align-items:center; justify-content:space-between; padding:1.75rem 0; }
+  .brand{ font-family:'Fraunces',serif; font-size:1.15rem; letter-spacing:-0.01em; text-decoration:none; color:var(--slate); }
+  .nav-links{ display:flex; align-items:center; gap:1.6rem; }
+  .nav-links a{ text-decoration:none; font-size:.9rem; font-weight:600; color:var(--slate-soft); transition:color .2s; }
+  .nav-links a:hover, .nav-links a.active{ color:var(--sage-deep); }
+
+  .dial-btn{ display:flex; align-items:center; gap:.5rem; border:1px solid rgba(44,51,45,.12); background:rgba(255,255,255,.6); backdrop-filter:blur(6px); padding:.55rem 1rem; border-radius:999px; font-size:.85rem; font-weight:600; color:var(--slate-soft); cursor:pointer; }
+  .dial-btn:hover{ border-color:var(--sage); color:var(--slate); }
+  .dial-dot{ width:.6rem; height:.6rem; border-radius:999px; box-shadow:0 0 0 1px rgba(44,51,45,.15); }
+  .dial-wrap{ position:relative; }
+  .dial-panel{ display:none; position:absolute; right:0; top:calc(100% + .75rem); width:20rem; background:rgba(255,255,255,.97); border:1px solid rgba(44,51,45,.1); border-radius:1.1rem; padding:1.4rem; box-shadow:0 20px 40px -12px rgba(44,51,45,.15); z-index:30; }
+  .dial-panel.open{ display:block; }
+  .dial-legend{ font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.14em; color:var(--slate-soft); margin:0 0 .5rem; }
+  .swatch-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:.5rem; }
+  .swatch{ display:flex; flex-direction:column; align-items:center; gap:.35rem; border:1px solid rgba(44,51,45,.1); border-radius:.6rem; padding:.5rem; background:none; cursor:pointer; }
+  .swatch[aria-checked="true"]{ border-color:var(--sage-deep); box-shadow:0 0 0 3px rgba(142,170,144,.25); }
+  .swatch .chip{ width:1.4rem; height:1.4rem; border-radius:999px; border:1px solid rgba(44,51,45,.1); }
+  .swatch span{ font-size:.62rem; color:var(--slate-soft); }
+  .density-row{ display:flex; border:1px solid rgba(44,51,45,.1); border-radius:999px; overflow:hidden; margin-top:.5rem; }
+  .density-row button{ flex:1; border:none; background:none; padding:.55rem .4rem; font-size:.72rem; font-weight:600; color:var(--slate-soft); cursor:pointer; }
+  .density-row button[aria-checked="true"]{ background:var(--sage); color:#fff; }
+  .dial-note{ font-size:.68rem; color:var(--slate-soft); margin-top:1rem; line-height:1.5; }
+
+  main{ padding:2.5rem 0 5rem; }
+  .page-head p.eyebrow{ font-size:.72rem; text-transform:uppercase; letter-spacing:.2em; color:var(--slate-soft); }
+  h1.page-title{ font-size:2rem; margin:.6rem 0 0; }
+  .page-lede{ color:var(--slate-soft); max-width:38rem; margin-top:.6rem; }
+
+  .progress-card{ margin-top:2.5rem; border:1px solid rgba(44,51,45,.1); background:linear-gradient(135deg, rgba(142,170,144,.14), rgba(231,195,172,.1)); border-radius:1.25rem; padding:2rem; }
+  .progress-card .tag{ font-size:.7rem; text-transform:uppercase; letter-spacing:.16em; color:var(--sage-deep); font-weight:700; }
+  .progress-card h2{ font-size:1.5rem; margin:.5rem 0 0; }
+  .progress-grid{ display:grid; gap:1.25rem; margin-top:1.5rem; }
+  @media(min-width:720px){ .progress-grid{ grid-template-columns:repeat(3,1fr); } }
+  .stat{ background:rgba(255,255,255,.65); border-radius:.9rem; padding:1.1rem 1.2rem; border:1px solid rgba(44,51,45,.08); }
+  .stat .num{ font-family:'IBM Plex Mono',monospace; font-size:1.5rem; color:var(--slate); }
+  .stat .lbl{ font-size:.75rem; color:var(--slate-soft); margin-top:.2rem; }
+  .suggestion{ margin-top:1.5rem; background:rgba(255,255,255,.7); border-left:3px solid var(--sage); border-radius:.6rem; padding:1rem 1.25rem; font-size:.92rem; color:var(--slate); }
+
+  section.matrix{ margin-top:3rem; }
+  .matrix-head{ display:flex; align-items:baseline; justify-content:space-between; flex-wrap:wrap; gap:.5rem; }
+  .legend{ display:flex; gap:1rem; font-size:.75rem; color:var(--slate-soft); }
+  .legend span.dot{ display:inline-block; width:.6rem; height:.6rem; border-radius:999px; margin-right:.35rem; vertical-align:middle; }
+  .cal-grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:.5rem; margin-top:1.25rem; }
+  .cal-day{ aspect-ratio:1; border:1px solid rgba(44,51,45,.1); border-radius:.7rem; background:var(--sand); display:flex; flex-direction:column; align-items:center; justify-content:center; font-family:'IBM Plex Mono',monospace; font-size:.8rem; color:var(--slate-soft); cursor:pointer; transition:.15s; }
+  .cal-day:hover{ border-color:var(--sage); }
+  .cal-day.logged-period{ background:var(--warmth); color:var(--slate); border-color:transparent; }
+  .cal-day.logged-symptom{ background:var(--sage-mist); color:var(--slate); border-color:transparent; }
+  .cal-day .dot-mark{ width:.4rem; height:.4rem; border-radius:999px; margin-top:.2rem; background:var(--sage-deep); }
+  .cal-note{ font-size:.78rem; color:var(--slate-soft); margin-top:1rem; }
+
+  footer{ text-align:center; font-size:.75rem; color:var(--slate-soft); padding:2.5rem 1.5rem 3rem; }
+  @media (prefers-reduced-motion: reduce){ *{ animation-duration:.001ms !important; } }
+  :focus-visible{ outline:2px solid var(--sage-deep); outline-offset:3px; border-radius:4px; }
+</style>
+</head>
+<body>
+
+<header class="wrap">
+  <nav class="site-nav">
+    <a href="index.html" class="brand">Care Tracker</a>
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="dashboard.html" class="active">Dashboard</a>
+      <a href="insights.html">Insights</a>
+      <a href="companion.html">Companion</a>
+    </div>
+    <div class="dial-wrap">
+      <button class="dial-btn" id="dialToggle" aria-expanded="false" aria-controls="dialPanel">
+        <span class="dial-dot" id="dialDot"></span>
+        Make this feel like yours
+      </button>
+      <div class="dial-panel" id="dialPanel" role="dialog" aria-label="Reading comfort settings">
+        <p class="dial-legend">Background tint</p>
+        <div class="swatch-grid" id="tintGroup" role="radiogroup" aria-label="Background tint">
+          <button class="swatch" data-tint="sand" aria-checked="true"><span class="chip" style="background:#FAF8F5"></span><span>Sand</span></button>
+          <button class="swatch" data-tint="sage" aria-checked="false"><span class="chip" style="background:#F1F5F0"></span><span>Sage</span></button>
+          <button class="swatch" data-tint="warm" aria-checked="false"><span class="chip" style="background:#FAF3EC"></span><span>Warm</span></button>
+          <button class="swatch" data-tint="dusk" aria-checked="false"><span class="chip" style="background:#F4F1F0"></span><span>Dusk</span></button>
+        </div>
+        <p class="dial-legend" style="margin-top:1.1rem;">Text layout density</p>
+        <div class="density-row" id="densityGroup" role="radiogroup" aria-label="Text density">
+          <button data-density="compact" aria-checked="false">Compact</button>
+          <button data-density="comfortable" aria-checked="true">Comfortable</button>
+          <button data-density="spacious" aria-checked="false">Spacious</button>
+        </div>
+        <p class="dial-note">These choices only change how the page looks — nothing is sent anywhere.</p>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<main class="wrap">
+  <div class="page-head">
+    <p class="eyebrow mono">your pocket health record</p>
+    <h1 class="page-title">Here's your month, gently summarized.</h1>
+    <p class="page-lede">This is demo data to show the shape of the page — connect it to real logs and this becomes yours.</p>
+  </div>
+
+  <section class="progress-card">
+    <p class="tag">monthly sisterly progress update</p>
+    <h2>You stayed close to your usual rhythm this month.</h2>
+    <div class="progress-grid">
+      <div class="stat"><div class="num">28<span style="font-size:.9rem;">d</span></div><div class="lbl">Average cycle length</div></div>
+      <div class="stat"><div class="num">Cramps</div><div class="lbl">Most-logged symptom</div></div>
+      <div class="stat"><div class="num">↓ 12%</div><div class="lbl">Flare-up days vs. last month</div></div>
+    </div>
+    <p class="suggestion">Cramps showed up a little more than usual in your luteal phase this time. Worth trying: a warm ginger tea in the evening and cutting back on iced coffee two days before your period starts — small, doable, not a diagnosis.</p>
+  </section>
+
+  <section class="matrix">
+    <div class="matrix-head">
+      <h2 style="font-size:1.35rem; margin:0;">Cycle logging matrix</h2>
+      <div class="legend">
+        <span><span class="dot" style="background:var(--warmth)"></span>Period logged</span>
+        <span><span class="dot" style="background:var(--sage-mist)"></span>Symptom logged</span>
+      </div>
+    </div>
+    <div class="cal-grid" id="calGrid"></div>
+    <p class="cal-note">Tap a day to mark it as logged — this demo only stores it in your browser tab, refresh to reset.</p>
+  </section>
+</main>
+
+<footer>Care Tracker. Private by default. This dashboard shows demo data until connected to your real account.</footer>
+
+<script>
+  (function(){
+    var root = document.documentElement;
+    var toggle = document.getElementById('dialToggle');
+    var panel = document.getElementById('dialPanel');
+    var dot = document.getElementById('dialDot');
+    var tintColors = { sand:'#FAF8F5', sage:'#F1F5F0', warm:'#FAF3EC', dusk:'#F4F1F0' };
+
+    function applyTint(id){
+      root.setAttribute('data-tint', id);
+      dot.style.background = tintColors[id] || tintColors.sand;
+      localStorage.setItem('ct_tint', id);
+      document.querySelectorAll('#tintGroup .swatch').forEach(function(b){
+        b.setAttribute('aria-checked', b.getAttribute('data-tint') === id ? 'true' : 'false');
+      });
+    }
+    function applyDensity(id){
+      root.setAttribute('data-density', id);
+      localStorage.setItem('ct_density', id);
+      document.querySelectorAll('#densityGroup button').forEach(function(b){
+        b.setAttribute('aria-checked', b.getAttribute('data-density') === id ? 'true' : 'false');
+      });
+    }
+    applyTint(localStorage.getItem('ct_tint') || 'sand');
+    applyDensity(localStorage.getItem('ct_density') || 'comfortable');
+
+    toggle.addEventListener('click', function(){
+      var open = panel.classList.toggle('open');
+      toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+    document.addEventListener('click', function(e){
+      if (!panel.contains(e.target) && !toggle.contains(e.target)) {
+        panel.classList.remove('open');
+        toggle.setAttribute('aria-expanded', 'false');
+      }
+    });
+    document.querySelectorAll('#tintGroup .swatch').forEach(function(b){
+      b.addEventListener('click', function(){ applyTint(b.getAttribute('data-tint')); });
+    });
+    document.querySelectorAll('#densityGroup button').forEach(function(b){
+      b.addEventListener('click', function(){ applyDensity(b.getAttribute('data-density')); });
+    });
+  })();
+
+  // ---- Demo cycle logging matrix (client-side only, resets on reload) ----
+  (function(){
+    var grid = document.getElementById('calGrid');
+    var demoLogged = { 3:'logged-period', 4:'logged-period', 5:'logged-period', 17:'logged-symptom', 22:'logged-symptom' };
+    for (var i = 1; i <= 28; i++){
+      var cell = document.createElement('div');
+      cell.className = 'cal-day' + (demoLogged[i] ? (' ' + demoLogged[i]) : '');
+      cell.setAttribute('role','button');
+      cell.setAttribute('tabindex','0');
+      cell.setAttribute('aria-label', 'Day ' + i);
+      cell.innerHTML = i + (demoLogged[i] ? '<span class="dot-mark"></span>' : '');
+      (function(cell, day){
+        function cycleState(){
+          if (cell.classList.contains('logged-period')) {
+            cell.classList.remove('logged-period');
+            cell.classList.add('logged-symptom');
+          } else if (cell.classList.contains('logged-symptom')) {
+            cell.classList.remove('logged-symptom');
+          } else {
+            cell.classList.add('logged-period');
+          }
+        }
+        cell.addEventListener('click', cycleState);
+        cell.addEventListener('keydown', function(e){ if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); cycleState(); } });
+      })(cell, i);
+      grid.appendChild(cell);
+    }
+  })();
+</script>
+</body>
+</html>
